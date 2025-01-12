@@ -4,24 +4,26 @@ import { useRouter } from "expo-router";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useDecks } from "@/hooks/useDecks";
+import { LanguagePicker } from "@/components/LanguagePicker";
 
-export default function AddDeckModal() {
+export const AddDeckScreen = () => {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [language, setLanguage] = useState("English");
+
+  const [selectedLanguageId, setSelectedLanguageId] = useState(1); // Default to English (ID: 1)
+
   const { addDeck } = useDecks();
+
   const handleSubmit = () => {
     if (!name.trim()) {
       return;
     }
-    addDeck(name.trim(), language);
+    addDeck(name.trim(), selectedLanguageId);
     router.back();
   };
-
+  console.log("selectedLanguageId", selectedLanguageId);
   return (
     <ThemedView style={styles.container}>
-      <ThemedText style={styles.title}>Create New Deck</ThemedText>
-
       <View style={styles.inputContainer}>
         <ThemedText>Deck Name</ThemedText>
         <TextInput
@@ -34,11 +36,10 @@ export default function AddDeckModal() {
 
       <View style={styles.inputContainer}>
         <ThemedText>Language</ThemedText>
-        <TextInput
-          style={styles.input}
-          value={language}
-          onChangeText={setLanguage}
-          placeholder="Enter language"
+
+        <LanguagePicker
+          selectedLanguage={selectedLanguageId}
+          onSelectLanguage={setSelectedLanguageId}
         />
       </View>
 
@@ -48,7 +49,7 @@ export default function AddDeckModal() {
       </View>
     </ThemedView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

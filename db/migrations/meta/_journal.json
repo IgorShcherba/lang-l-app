@@ -8,6 +8,20 @@
       "when": 1736680571843,
       "tag": "0000_youthful_talon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1736691902026,
+      "tag": "0001_vengeful_jack_flag",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1736692627279,
+      "tag": "0002_seed-languages",
+      "breakpoints": true
     }
   ]
 }

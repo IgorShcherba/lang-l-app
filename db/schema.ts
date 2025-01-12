@@ -5,7 +5,9 @@ export const DB_NAME = "dockly";
 export const decks = sqliteTable("decks", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(), // Name of the deck
-  language: text("language").notNull(), // Language the deck focuses on
+  languageId: integer("language_id")
+    .references(() => languages.id)
+    .notNull(), // Foreign key to languages table
   createdAt: text("created_at").default(new Date().toISOString()), // Creation timestamp
 });
 
@@ -30,6 +32,13 @@ export const reviewSessions = sqliteTable("review_sessions", {
   success: integer("success").notNull(), // 1 for correct, 0 for incorrect
 });
 
+export const languages = sqliteTable("languages", {
+  id: integer("id").primaryKey({ autoIncrement: true }), // Unique language ID
+  name: text("name").notNull(), // Full name of the language (e.g., "Spanish")
+  code: text("code").unique().notNull(), // Standardized code (e.g., "es")
+});
+
 export type Deck = typeof decks.$inferSelect;
 export type Flashcard = typeof flashcards.$inferSelect;
 export type ReviewSession = typeof reviewSessions.$inferSelect;
+export type Language = typeof languages.$inferSelect;

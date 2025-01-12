@@ -52,7 +52,7 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
               <Stack.Screen
-                name="(modals)/AddDeckModal"
+                name="(modals)/add-deck"
                 options={{ presentation: "modal", title: "Add Deck" }}
               />
             </Stack>

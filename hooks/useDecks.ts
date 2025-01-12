@@ -1,29 +1,50 @@
-import { useEffect, useState } from "react";
-import { useDatabase } from "@/db/service";
-import { Deck } from "@/db/schema";
+import { useMemo } from "react";
+
+import { decks } from "@/db/schema";
+import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useSQLiteContext } from "expo-sqlite";
+import { eq } from "drizzle-orm";
 
 export function useDecks() {
-  const [decks, setDecks] = useState<Deck[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const db = useDatabase();
+  const sqlite = useSQLiteContext();
+  const db = drizzle(sqlite);
 
-  useEffect(() => {
-    async function fetchDecks() {
-      try {
-        const result = await db.getDecks();
-        setDecks(result);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch decks")
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
+  const { data } = useLiveQuery(db.select().from(decks));
 
-    fetchDecks();
-  }, [db]);
+  return useMemo(() => {
+    return {
+      decks: data,
+      async getDecks() {
+        try {
+          const result = await db.select().from(decks);
+          return result;
+        } catch (error) {
+          console.error("Error fetching decks:", error);
+          throw error;
+        }
+      },
 
-  return { decks, loading, error, addDeck: db.addDeck };
+      async addDeck(name: string, languageId: number) {
+        try {
+          const result = await db.insert(decks).values({
+            name,
+            languageId,
+          });
+          return result;
+        } catch (error) {
+          console.error("Error adding deck:", error);
+          throw error;
+        }
+      },
+
+      async deleteDeck(id: number) {
+        try {
+          await db.delete(decks).where(eq(decks.id, id));
+        } catch (error) {
+          console.error("Error deleting deck:", error);
+          throw error;
+        }
+      },
+    };
+  }, [data]);
 }

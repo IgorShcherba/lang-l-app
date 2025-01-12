@@ -1,26 +1,25 @@
 import { useEffect } from "react";
-import { useSQLiteContext } from "expo-sqlite";
-import { runMigrations } from "@/db/migrate";
+import { openDatabaseSync } from "expo-sqlite";
 
+import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
+import migrations from "@/db/migrations/migrations";
+import { DB_NAME } from "@/db/schema";
+import { drizzle } from "drizzle-orm/expo-sqlite";
 type Props = {
   onComplete: () => void;
 };
 
+const db = openDatabaseSync(DB_NAME);
+const decklyDb = drizzle(db);
+
 export function DatabaseInitializer({ onComplete }: Props) {
-  const sqlite = useSQLiteContext();
+  const { success, error } = useMigrations(decklyDb, migrations);
 
   useEffect(() => {
-    async function init() {
-      try {
-        await runMigrations(sqlite);
-        onComplete();
-      } catch (error) {
-        console.error("Failed to initialize database:", error);
-      }
+    if (success) {
+      onComplete();
     }
-
-    init();
-  }, [sqlite, onComplete]);
+  }, [success, onComplete]);
 
   return null;
 }

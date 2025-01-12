@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Button, FlatList, View } from "react-native";
+import { ActivityIndicator, Button, FlatList, View, Alert } from "react-native";
 import { useDecks } from "@/hooks/useDecks";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
@@ -7,34 +7,32 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
-  const { decks, loading, error } = useDecks();
+  const { decks, deleteDeck } = useDecks();
   const router = useRouter();
 
   const openAddDeckModal = () => {
     router.push({
-      pathname: "/(modals)/AddDeckModal",
+      pathname: "/(modals)/add-deck",
     });
   };
 
-  if (loading) {
-    return (
-      <ThemedView
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <ActivityIndicator size="large" />
-      </ThemedView>
+  const handleDeleteDeck = (deckId: number, deckName: string) => {
+    Alert.alert(
+      "Delete Deck",
+      `Are you sure you want to delete "${deckName}"?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteDeck(deckId),
+        },
+      ]
     );
-  }
-
-  if (error) {
-    return (
-      <ThemedView
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <ThemedText>Error: {error.message}</ThemedText>
-      </ThemedView>
-    );
-  }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
@@ -52,9 +50,32 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <ThemedView
-              style={{ padding: 16, marginBottom: 8, borderRadius: 8 }}
+              style={{
+                padding: 16,
+                marginBottom: 8,
+                borderRadius: 8,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
             >
               <ThemedText>{item.name}</ThemedText>
+              <Button
+                title="Delete"
+                onPress={() => handleDeleteDeck(item.id, item.name)}
+                color="red"
+              />
+            </ThemedView>
+          )}
+          ListEmptyComponent={() => (
+            <ThemedView
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ThemedText>No decks found</ThemedText>
             </ThemedView>
           )}
         />
