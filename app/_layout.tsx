@@ -49,7 +49,11 @@ export default function RootLayout() {
             value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
           >
             <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(tabs)"
+                options={{ headerShown: false, title: "Decks" }}
+              />
+              <Stack.Screen name="deck/[id]" options={{ title: "Deck" }} />
               <Stack.Screen name="+not-found" />
               <Stack.Screen
                 name="(modals)/add-deck"

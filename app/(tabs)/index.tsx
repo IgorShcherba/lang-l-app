@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Button, FlatList, View, Alert } from "react-native";
+import { Button, FlatList, View, Alert, Pressable } from "react-native";
 import { useDecks } from "@/hooks/useDecks";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
@@ -34,6 +34,10 @@ export default function HomeScreen() {
     );
   };
 
+  const handleDeckPress = (deckId: number) => {
+    router.push(`/deck/${deckId}`);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <ThemedView style={{ flex: 1, padding: 16 }}>
@@ -49,23 +53,28 @@ export default function HomeScreen() {
           data={decks}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <ThemedView
-              style={{
-                padding: 16,
-                marginBottom: 8,
-                borderRadius: 8,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <ThemedText>{item.name}</ThemedText>
-              <Button
-                title="Delete"
-                onPress={() => handleDeleteDeck(item.id, item.name)}
-                color="red"
-              />
-            </ThemedView>
+            <Pressable onPress={() => handleDeckPress(item.id)}>
+              <ThemedView
+                style={{
+                  padding: 16,
+                  marginBottom: 8,
+                  borderRadius: 8,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <ThemedText>{item.name}</ThemedText>
+                <Button
+                  title="Delete"
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleDeleteDeck(item.id, item.name);
+                  }}
+                  color="red"
+                />
+              </ThemedView>
+            </Pressable>
           )}
           ListEmptyComponent={() => (
             <ThemedView
