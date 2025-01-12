@@ -25,5 +25,5 @@ export function useDecks() {
     fetchDecks();
   }, [db]);
 
-  return { decks, loading, error };
+  return { decks, loading, error, addDeck: db.addDeck };
 }

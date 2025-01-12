@@ -18,6 +18,16 @@ export function useDatabase() {
       }
     },
 
+    async addDeck(name: string, language: string) {
+      try {
+        const result = await db.insert(decks).values({ name, language });
+        return result;
+      } catch (error) {
+        console.error("Error adding deck:", error);
+        throw error;
+      }
+    },
+
     async deleteDeck(id: number) {
       try {
         await db.delete(decks).where(eq(decks.id, id));

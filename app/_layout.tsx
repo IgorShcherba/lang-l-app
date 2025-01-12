@@ -51,6 +51,10 @@ export default function RootLayout() {
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
+              <Stack.Screen
+                name="(modals)/AddDeckModal"
+                options={{ presentation: "modal", title: "Add Deck" }}
+              />
             </Stack>
             <StatusBar style="auto" />
           </ThemeProvider>
