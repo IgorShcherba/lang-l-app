@@ -59,6 +59,10 @@ export default function RootLayout() {
                 name="(modals)/add-deck"
                 options={{ presentation: "modal", title: "Add Deck" }}
               />
+              <Stack.Screen
+                name="(modals)/add-card"
+                options={{ presentation: "modal", title: "Add Card" }}
+              />
             </Stack>
             <StatusBar style="auto" />
           </ThemeProvider>
