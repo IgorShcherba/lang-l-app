@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,13 +11,30 @@ import { ThemedText } from "@/components/ThemedText";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCards } from "@/hooks/useCards";
 
-export const AddCardScreen = () => {
-  const { deckId } = useLocalSearchParams<{ deckId: string }>();
+type AddCardParams = {
+  deckId: string;
+  cardId?: string;
+};
 
-  const [front, setFront] = useState("");
-  const [back, setBack] = useState("");
+export const AddCardScreen = () => {
+  const { deckId, cardId } = useLocalSearchParams<AddCardParams>();
+
   const router = useRouter();
-  const { addCard } = useCards(parseInt(deckId, 10));
+  const { addCard, cards } = useCards(parseInt(deckId, 10));
+
+  const card = useMemo(
+    () => !!cardId && cards?.find((card) => card.id === parseInt(cardId, 10)),
+    [cardId, cards]
+  );
+  const [front, setFront] = useState((card && card?.front) || "");
+  const [back, setBack] = useState((card && card?.back) || "");
+
+  useEffect(() => {
+    if (card) {
+      setFront(card.front);
+      setBack(card.back);
+    }
+  }, [card]);
 
   const handleSubmit = async () => {
     if (!front.trim() || !back.trim()) return;

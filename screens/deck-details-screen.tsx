@@ -40,6 +40,13 @@ export const DeckDetailsScreen = ({ deckId }: Props) => {
     });
   };
 
+  const handleCardPress = (cardId: number) => {
+    router.push({
+      pathname: "/(modals)/add-card",
+      params: { cardId, deckId },
+    });
+  };
+
   return (
     <SafeAreaView style={styles.safeAreaView}>
       <ThemedView style={styles.container}>
@@ -50,18 +57,19 @@ export const DeckDetailsScreen = ({ deckId }: Props) => {
           contentContainerStyle={styles.cardList}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <ThemedView style={styles.card}>
-              <ThemedView style={styles.cardContent}>
-                <ThemedText style={styles.cardText}>{item.front}</ThemedText>
-                <ThemedText style={styles.cardText}>{item.back}</ThemedText>
+            <Pressable onPress={() => handleCardPress(item.id)}>
+              <ThemedView style={styles.card}>
+                <ThemedView style={styles.cardContent}>
+                  <ThemedText style={styles.cardText}>{item.front}</ThemedText>
+                </ThemedView>
+                <Pressable
+                  onPress={() => handleDeleteCard(item.id)}
+                  style={styles.deleteButton}
+                >
+                  <AntDesign name="delete" size={20} color="red" />
+                </Pressable>
               </ThemedView>
-              <Pressable
-                onPress={() => handleDeleteCard(item.id)}
-                style={styles.deleteButton}
-              >
-                <AntDesign name="delete" size={20} color="red" />
-              </Pressable>
-            </ThemedView>
+            </Pressable>
           )}
           ListEmptyComponent={() => (
             <ThemedView style={styles.emptyContainer}>
@@ -103,6 +111,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardContent: {
+    backgroundColor: "#f5f5f5",
     flex: 1,
   },
   cardText: {
