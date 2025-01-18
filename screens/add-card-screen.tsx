@@ -5,6 +5,7 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
+  useColorScheme,
 } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
@@ -18,6 +19,8 @@ type AddCardParams = {
 
 export const AddCardScreen = () => {
   const { deckId, cardId } = useLocalSearchParams<AddCardParams>();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   const router = useRouter();
   const { addCard, cards } = useCards(parseInt(deckId, 10));
@@ -50,20 +53,29 @@ export const AddCardScreen = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}
     >
       <ThemedView style={styles.content}>
-        <ThemedText style={styles.title}>Add New Card</ThemedText>
+        <ThemedText style={styles.title}>
+          {cardId ? "Edit Card" : "Add New Card"}
+        </ThemedText>
 
         <ThemedView style={styles.form}>
           <ThemedView style={styles.inputContainer}>
             <ThemedText style={styles.label}>Front</ThemedText>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: isDark ? "#1c1c1c" : "#fff",
+                  borderColor: isDark ? "#333" : "#ccc",
+                  color: isDark ? "#fff" : "#000",
+                },
+              ]}
               value={front}
               onChangeText={setFront}
               placeholder="Enter the front text"
-              placeholderTextColor="#666"
+              placeholderTextColor={isDark ? "#666" : "#999"}
               multiline
             />
           </ThemedView>
@@ -71,11 +83,18 @@ export const AddCardScreen = () => {
           <ThemedView style={styles.inputContainer}>
             <ThemedText style={styles.label}>Back</ThemedText>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: isDark ? "#1c1c1c" : "#fff",
+                  borderColor: isDark ? "#333" : "#ccc",
+                  color: isDark ? "#fff" : "#000",
+                },
+              ]}
               value={back}
               onChangeText={setBack}
               placeholder="Enter the back text"
-              placeholderTextColor="#666"
+              placeholderTextColor={isDark ? "#666" : "#999"}
               multiline
             />
           </ThemedView>
@@ -87,7 +106,9 @@ export const AddCardScreen = () => {
             ]}
             onPress={handleSubmit}
           >
-            <ThemedText style={styles.buttonText}>Add Card</ThemedText>
+            <ThemedText style={styles.buttonText}>
+              {cardId ? "Save Changes" : "Add Card"}
+            </ThemedText>
           </Pressable>
         </ThemedView>
       </ThemedView>

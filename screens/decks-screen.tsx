@@ -1,20 +1,22 @@
 import React from "react";
-import { FlatList, Pressable, Alert } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  Alert,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useDecks } from "@/hooks/useDecks";
-import { StyleSheet } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 
 export function DecksScreen() {
   const { decks, deleteDeck } = useDecks();
   const router = useRouter();
-
-  const openAddDeckModal = () => {
-    router.push("/(modals)/add-deck");
-  };
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   const handleDeleteDeck = (deckId: number, deckName: string) => {
     Alert.alert(
@@ -34,77 +36,132 @@ export function DecksScreen() {
     );
   };
 
+  const openAddDeckModal = () => {
+    router.push("/(modals)/add-deck");
+  };
+
   const handleDeckPress = (deckId: number) => {
     router.push(`/deck/${deckId}`);
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.title}>Your Decks</ThemedText>
-
-        <FlatList
-          data={decks}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.deckList}
-          renderItem={({ item }) => (
-            <Pressable onPress={() => handleDeckPress(item.id)}>
-              <ThemedView style={styles.deckItem}>
-                <ThemedText>{item.name}</ThemedText>
-                <Pressable
-                  onPress={(e) => {
-                    handleDeleteDeck(item.id, item.name);
-                  }}
-                  style={styles.deleteButton}
-                >
-                  <AntDesign name="delete" size={20} color="red" />
-                </Pressable>
+    <ThemedView style={[styles.container]}>
+      <FlatList
+        data={decks}
+        contentContainerStyle={styles.deckList}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <Pressable
+            onPress={() => handleDeckPress(item.id)}
+            style={({ pressed }) => [
+              styles.deckPressable,
+              pressed && styles.deckPressed,
+            ]}
+          >
+            <ThemedView
+              style={[
+                styles.deck,
+                { backgroundColor: isDark ? "#2c2c2c" : "#f5f5f5" },
+              ]}
+            >
+              <ThemedView style={styles.deckContent}>
+                <ThemedText style={styles.deckName}>{item.name}</ThemedText>
               </ThemedView>
-            </Pressable>
-          )}
-          ListEmptyComponent={() => (
-            <ThemedView style={styles.emptyContainer}>
-              <ThemedText>No decks found , add one!</ThemedText>
+              <Pressable
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleDeleteDeck(item.id, item.name);
+                }}
+                style={({ pressed }) => [
+                  styles.deleteButton,
+                  pressed && styles.deleteButtonPressed,
+                ]}
+              >
+                <AntDesign
+                  name="delete"
+                  size={20}
+                  color={isDark ? "#ff6b6b" : "red"}
+                />
+              </Pressable>
             </ThemedView>
-          )}
-        />
+          </Pressable>
+        )}
+        ListEmptyComponent={() => (
+          <ThemedView style={styles.emptyContainer}>
+            <ThemedText style={styles.emptyText}>
+              No decks found, add one!
+            </ThemedText>
+          </ThemedView>
+        )}
+      />
 
-        <Pressable style={styles.fab} onPress={openAddDeckModal}>
-          <AntDesign name="plus" size={24} color="white" />
-        </Pressable>
-      </ThemedView>
-    </SafeAreaView>
+      <Pressable
+        style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+        onPress={openAddDeckModal}
+      >
+        <AntDesign name="plus" size={24} color="white" />
+      </Pressable>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeAreaView: {
+    flex: 1,
+    backgroundColor: "red",
+  },
   container: {
     flex: 1,
     padding: 16,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
-  },
   deckList: {
-    flex: 1,
+    flexGrow: 1,
   },
-  deckItem: {
+  deckPressable: {
+    marginBottom: 12,
+  },
+  deckPressed: {
+    opacity: 0.7,
+  },
+  deck: {
     padding: 16,
-    marginBottom: 8,
-    borderRadius: 8,
+    borderRadius: 12,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  deckContent: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+  deckName: {
+    fontSize: 18,
+    fontWeight: "500",
+    lineHeight: 24,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
+  emptyText: {
+    fontSize: 16,
+    opacity: 0.7,
+  },
   deleteButton: {
     padding: 8,
+    borderRadius: 20,
+  },
+  deleteButtonPressed: {
+    opacity: 0.7,
+    backgroundColor: "rgba(255, 0, 0, 0.1)",
   },
   fab: {
     position: "absolute",
@@ -124,5 +181,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  fabPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.95 }],
   },
 });

@@ -15,6 +15,9 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { SQLiteProvider } from "expo-sqlite";
 import { DB_NAME } from "@/db/schema";
 import { DatabaseInitializer } from "@/components/DatabaseInitializer";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -43,30 +46,39 @@ export default function RootLayout() {
         useSuspense
         options={{ enableChangeListener: true }}
       >
-        <DatabaseInitializer onComplete={() => setDbInitialized(true)} />
-        {dbInitialized && (
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <Stack>
-              <Stack.Screen
-                name="(tabs)"
-                options={{ headerShown: false, title: "Decks" }}
-              />
-              <Stack.Screen name="deck/[id]" options={{ title: "Deck" }} />
-              <Stack.Screen name="+not-found" />
-              <Stack.Screen
-                name="(modals)/add-deck"
-                options={{ presentation: "modal", title: "Add Deck" }}
-              />
-              <Stack.Screen
-                name="(modals)/add-card"
-                options={{ presentation: "modal", title: "Add Card" }}
-              />
-            </Stack>
-            <StatusBar style="auto" />
-          </ThemeProvider>
-        )}
+        <SafeAreaProvider>
+          <DatabaseInitializer onComplete={() => setDbInitialized(true)} />
+          {dbInitialized && (
+            <ThemeProvider
+              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+            >
+              <Stack>
+                <Stack.Screen
+                  name="(tabs)"
+                  options={{
+                    headerShown: true,
+                    title: "Decks",
+                    headerTitleStyle: {
+                      fontSize: 28,
+                      fontWeight: "600",
+                    },
+                  }}
+                />
+                <Stack.Screen name="deck/[id]" options={{ title: "Deck" }} />
+                <Stack.Screen name="+not-found" />
+                <Stack.Screen
+                  name="(modals)/add-deck"
+                  options={{ presentation: "modal", title: "Add Deck" }}
+                />
+                <Stack.Screen
+                  name="(modals)/add-card"
+                  options={{ presentation: "modal", title: "Add Card" }}
+                />
+              </Stack>
+              <StatusBar style="auto" />
+            </ThemeProvider>
+          )}
+        </SafeAreaProvider>
       </SQLiteProvider>
     </Suspense>
   );
