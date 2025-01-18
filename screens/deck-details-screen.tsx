@@ -5,6 +5,7 @@ import {
   Alert,
   StyleSheet,
   useColorScheme,
+  View,
 } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
@@ -12,25 +13,19 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import { useCards } from "@/hooks/useCards";
 import { useDecks } from "@/hooks/useDecks";
+import { DeckStats } from "@/components/deck-stats";
 
 export const DeckDetailsScreen = () => {
   const { id: deckId } = useLocalSearchParams<{ id: string }>();
   const { cards, deleteCard } = useCards(parseInt(deckId, 10));
-  const { decks } = useDecks();
+  const { decks, updateDeck } = useDecks();
   const router = useRouter();
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
-
   const isDark = colorScheme === "dark";
 
   const deck = decks?.find((d) => d.id === parseInt(deckId, 10));
-  useEffect(() => {
-    if (deck) {
-      navigation.setOptions({
-        title: deck.name,
-      });
-    }
-  }, [deck, navigation]);
+  const cardsToReview = cards?.length || 0; // TODO: implement actual review logic
 
   const handleDeleteCard = (cardId: number) => {
     Alert.alert("Delete Card", "Are you sure you want to delete this card?", [
@@ -60,8 +55,27 @@ export const DeckDetailsScreen = () => {
     });
   };
 
+  const handleUpdateDeckName = async (newName: string) => {
+    if (!deck) return;
+    try {
+      await updateDeck(deck.id, newName);
+      navigation.setOptions({
+        title: newName,
+      });
+    } catch (error) {
+      console.error("Failed to update deck name:", error);
+    }
+  };
+
   return (
     <ThemedView style={styles.container}>
+      <DeckStats
+        deckName={deck?.name || ""}
+        totalCards={cards?.length || 0}
+        cardsToReview={cardsToReview}
+        onUpdateDeckName={handleUpdateDeckName}
+      />
+
       <FlatList
         data={cards}
         contentContainerStyle={styles.cardList}

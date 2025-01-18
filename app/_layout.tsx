@@ -64,7 +64,7 @@ export default function RootLayout() {
                     },
                   }}
                 />
-                <Stack.Screen name="deck/[id]" options={{ title: "Deck" }} />
+                <Stack.Screen name="deck/[id]" options={{ title: "" }} />
                 <Stack.Screen name="+not-found" />
                 <Stack.Screen
                   name="(modals)/add-deck"

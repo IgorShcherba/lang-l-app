@@ -45,6 +45,15 @@ export function useDecks() {
           throw error;
         }
       },
+
+      async updateDeck(deckId: number, name: string) {
+        try {
+          await db.update(decks).set({ name }).where(eq(decks.id, deckId));
+        } catch (error) {
+          console.error("Error updating deck:", error);
+          throw error;
+        }
+      },
     };
   }, [data]);
 }
