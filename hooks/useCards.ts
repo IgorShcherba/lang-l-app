@@ -27,6 +27,17 @@ export function useCards(deckId: number) {
           throw error;
         }
       },
+      async editCard(cardId: number, front: string, back: string) {
+        try {
+          await db
+            .update(flashcards)
+            .set({ front, back })
+            .where(eq(flashcards.id, cardId));
+        } catch (error) {
+          console.error("Error editing card:", error);
+          throw error;
+        }
+      },
       async deleteCard(cardId: number) {
         try {
           await db.delete(flashcards).where(eq(flashcards.id, cardId));

@@ -1,16 +1,21 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
   TextInput,
   useColorScheme,
+  View,
+  Keyboard,
+  KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
+
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCards } from "@/hooks/useCards";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type AddCardParams = {
   deckId: string;
@@ -21,9 +26,10 @@ export const AddCardScreen = () => {
   const { deckId, cardId } = useLocalSearchParams<AddCardParams>();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const insets = useSafeAreaInsets();
 
   const router = useRouter();
-  const { addCard, cards } = useCards(parseInt(deckId, 10));
+  const { addCard, editCard, cards } = useCards(parseInt(deckId, 10));
 
   const card = useMemo(
     () => !!cardId && cards?.find((card) => card.id === parseInt(cardId, 10)),
@@ -43,23 +49,28 @@ export const AddCardScreen = () => {
     if (!front.trim() || !back.trim()) return;
 
     try {
-      await addCard(front.trim(), back.trim());
+      if (cardId) {
+        await editCard(parseInt(cardId, 10), front.trim(), back.trim());
+      } else {
+        await addCard(front.trim(), back.trim());
+      }
       router.back();
     } catch (error) {
-      console.error("Failed to add card:", error);
+      console.error("Failed to add/edit card:", error);
     }
   };
 
   return (
     <KeyboardAvoidingView
+      style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
     >
-      <ThemedView style={styles.content}>
-        <ThemedText style={styles.title}>
-          {cardId ? "Edit Card" : "Add New Card"}
-        </ThemedText>
-
+      <ScrollView
+        style={styles.scrollView}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContent}
+      >
         <ThemedView style={styles.form}>
           <ThemedView style={styles.inputContainer}>
             <ThemedText style={styles.label}>Front</ThemedText>
@@ -77,6 +88,7 @@ export const AddCardScreen = () => {
               placeholder="Enter the front text"
               placeholderTextColor={isDark ? "#666" : "#999"}
               multiline
+              returnKeyType="next"
             />
           </ThemedView>
 
@@ -96,22 +108,34 @@ export const AddCardScreen = () => {
               placeholder="Enter the back text"
               placeholderTextColor={isDark ? "#666" : "#999"}
               multiline
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
             />
           </ThemedView>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              pressed && styles.buttonPressed,
-            ]}
-            onPress={handleSubmit}
-          >
-            <ThemedText style={styles.buttonText}>
-              {cardId ? "Save Changes" : "Add Card"}
-            </ThemedText>
-          </Pressable>
         </ThemedView>
-      </ThemedView>
+      </ScrollView>
+
+      <View
+        style={[
+          styles.bottomContainer,
+          {
+            paddingBottom: Math.max(insets.bottom, 16),
+            backgroundColor: isDark ? "#1c1c1c" : "#fff",
+          },
+        ]}
+      >
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={handleSubmit}
+        >
+          <ThemedText style={styles.buttonText}>
+            {cardId ? "Save Changes" : "Add Card"}
+          </ThemedText>
+        </Pressable>
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -119,18 +143,15 @@ export const AddCardScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
   },
-  content: {
+  scrollView: {
     flex: 1,
-    padding: 16,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 24,
-    textAlign: "center",
+  scrollContent: {
+    flexGrow: 1,
   },
   form: {
+    padding: 16,
     flex: 1,
   },
   inputContainer: {
@@ -149,12 +170,16 @@ const styles = StyleSheet.create({
     minHeight: 100,
     textAlignVertical: "top",
   },
+  bottomContainer: {
+    padding: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "rgba(128,128,128,0.2)",
+  },
   button: {
     backgroundColor: "#007AFF",
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 24,
   },
   buttonPressed: {
     opacity: 0.8,

@@ -11,6 +11,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { useRouter } from "expo-router";
 import { useDecks } from "@/hooks/useDecks";
 import { AntDesign } from "@expo/vector-icons";
+import { Colors } from "@/constants/Colors";
 
 export function DecksScreen() {
   const { decks, deleteDeck } = useDecks();
@@ -61,15 +62,18 @@ export function DecksScreen() {
             <ThemedView
               style={[
                 styles.deck,
-                { backgroundColor: isDark ? "#2c2c2c" : "#f5f5f5" },
+                {
+                  backgroundColor: isDark
+                    ? Colors.dark.card
+                    : Colors.light.card,
+                },
               ]}
             >
               <ThemedView style={styles.deckContent}>
                 <ThemedText style={styles.deckName}>{item.name}</ThemedText>
               </ThemedView>
               <Pressable
-                onPress={(e) => {
-                  e.stopPropagation();
+                onPress={() => {
                   handleDeleteDeck(item.id, item.name);
                 }}
                 style={({ pressed }) => [
